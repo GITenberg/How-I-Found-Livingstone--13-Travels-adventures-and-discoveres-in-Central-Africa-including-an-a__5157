@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: 0OX/80wy9wD4qQtcJ7/3e1s/frRTmrzTYIYrfZLVSN1XgBsIInexMNiNOW2XXIccFAWwTScyNrMctP7mO3bVcwJ/UqLs45/n79+dAyTFKZ/aoTLnbnn5GY1fcwAEFXrsCXoTylc0MSipzfQ5Tm2uijC6q96nvB5eoFcsqDBcKniZHSDm2Efzt/KqWvtz3Z5EmSmgROa3W0BmMvMPekOPi3MGRT/GYujUqAvpU6uUAZIMasPz4yt2YXRURvh8vaHzO6vzAG7QI0oc6DwY3RvvKr/YLBxqEXggMn5wR5wc9IyClWaYRyVmjycn1vQhkUL/z+tqakBYzpxwyfWrqKPtaN9C8BD/qGxES2Qnakpb84/aSeDMeAOutdEv00DJiNS4dR+4tn2F1bq36PvmiltoyVA1OWZBjjSCr1SLrTJ4NLIooHr/eoYMjKkddLHIEyOgVerTK2gjWEncuVb0CIswH7Y3qeY5ndbycN3FnrWMIH0V74z5PKs/iPwdYlCeV/04Nfccuil8GwR81tr1m2KFA7EGkCEyZMkTEgSDlO6Xak7janWIUSje3E3ZCPL1i82OPwVzAACzZvyKhQFHn0YImViNv+FouFcUT5BJw9iplPixmCSGETw3Zumzl4jZg2F3GSv+h2NCcj/3kNaZTy5YEpB1vuFPZuDMIn+zjrNTpIg=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/How-I-Found-Livingstone--13-Travels-adventures-and-discoveres-in-Central-Africa-including-an-a__5157
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
